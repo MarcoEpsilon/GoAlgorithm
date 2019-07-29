@@ -276,3 +276,182 @@ func TestDeleteRangeElem(t *testing.T) {
 		t.Error("func DeleteRangeElem's result is unexpected")
 	}
 }
+
+func TestFindCommonNode(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,5})
+	checkError(err,t)
+	oneList := list.Copy()
+	node,err := FindCommonNode(list,oneList)
+	checkError(err,t)
+	newList := NodeToLinkList(node)
+	trans := getSlice(newList)
+	result := []int{1,2,3,4,5}
+	errMsg := "func FindCommonNode's result (%d = %d) is unexpected"
+	if len(trans) != len(result) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+	takeNode := list.head.next.next
+	takeList := NodeToLinkList(takeNode)
+	node,err = FindCommonNode(newList,takeList)
+	checkError(err,t)
+	testList := NodeToLinkList(node)
+	leftTrans := getSlice(takeList)
+	rightTrans := getSlice(testList)
+	if len(leftTrans) != len(rightTrans) {
+		t.Errorf(errMsg,len(leftTrans),len(rightTrans))
+	}
+	for i := 0; i < len(leftTrans); i++ {
+		if leftTrans[i].(int) != rightTrans[i].(int) {
+			t.Errorf(errMsg,leftTrans[i],rightTrans[i])
+		}
+	}
+}
+
+func TestSplitToEvenAndOdd(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,5,6})
+	checkError(err,t)
+	even,odd := list.SplitToEvenAndOdd()
+	evenResult := []int{2,4,6}
+	oddResult := []int{1,3,5}
+	evenTrans := getSlice(even)
+	oddTrans := getSlice(odd)
+	errMsg := "func SplitToEvenAndOdd's result (%d = %d) is unexpected"
+	check := func(trans []interface{},result []int) {
+		if len(trans) != len(result) {
+			t.Errorf(errMsg,len(trans),len(result))
+		}
+		for i := 0; i < len(trans); i++ {
+			if trans[i].(int) != result[i] {
+				t.Errorf(errMsg,trans[i],result[i])
+			}
+		}
+	}
+	check(evenTrans,evenResult)
+	check(oddTrans,oddResult)
+}
+
+func TestSplitNaturalAndReverse(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,5})
+	checkError(err,t)
+	even,odd := list.SplitToNaturalAndReverse()
+	evenResult := []int{1,3,5}
+	oddResult := []int{4,2}
+	evenTrans := getSlice(even)
+	oddTrans := getSlice(odd)
+	errMsg := "func SplitToEvenAndOdd's result (%d = %d) is unexpected"
+	check := func(trans []interface{},result []int) {
+		if len(trans) != len(result) {
+			t.Errorf(errMsg,len(trans),len(result))
+		}
+		for i := 0; i < len(trans); i++ {
+			if trans[i].(int) != result[i] {
+				t.Errorf(errMsg,trans[i],result[i])
+			}
+		}
+	}
+	check(evenTrans,evenResult)
+	check(oddTrans,oddResult)
+}
+
+func TestDeletRepeatWithSorted(t *testing.T) {
+	list,err := NewWith([]int{2,3,4,2,3,1,6,4,4,1,2,5})
+	checkError(err,t)
+	err = list.InsertSort()
+	checkError(err,t)
+	err = list.DeleteRepeatWithSorted()
+	checkError(err,t)
+	result := []int{1,2,3,4,5,6}
+	trans := getSlice(list)
+	errMsg := "func DeleteRepeatWithSorted's result (%d = %d) is unexpected"
+	if len(trans) != len(result) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+}
+
+func TestReverseMergeSortedLinkList(t *testing.T) {
+	left,err := NewWith([]int{1,2,4,5,10})
+	checkError(err,t)
+	right,err := NewWith([]int{3,6,7,8,9,11})
+	checkError(err,t)
+	merged,err := ReverseMergeSortedLinkList(left,right)
+	checkError(err,t)
+	result := []int{11,10,9,8,7,6,5,4,3,2,1}
+	trans := getSlice(merged)
+	errMsg := "func ReverseMergeSortedLinkList's result (%d = %d) is unexpected"
+	if len(trans) != len(result) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+}
+
+func TestGetCommonWithSortedLinkList(t *testing.T) {
+	left,err := NewWith([]int{1,2,3,4,5,6})
+	checkError(err,t)
+	right,err := NewWith([]int{4,5,6,7,8,9})
+	checkError(err,t)
+	list,err := GetCommonWithSortedLinkList(left,right)
+	checkError(err,t)
+	result := []int{4,5,6}
+	trans := getSlice(list)
+	errMsg := "func GetCommonWithSortedLinkList's result (%d = %d) is unexpected"
+	if len(trans) != len(result) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+}
+
+
+func TestIsSubSequenceOf(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,5,6})
+	checkError(err,t)
+	sub,err := NewWith([]int{2,3,4,5,6})
+	checkError(err,t)
+	errMsg := "func IsSubSequenceOf's result is unexpected"
+	is,err := sub.IsSubSequenceOf(list)
+	checkError(err,t)
+	if !is {
+		t.Errorf(errMsg)
+	}
+	sub,err = NewWith([]int{1,2,4})
+	checkError(err,t)
+	is,err = sub.IsSubSequenceOf(list)
+	checkError(err,t)
+	if is {
+		t.Errorf(errMsg)
+	}
+}
+
+func TestFindLastN(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4})
+	checkError(err,t)
+	elem,err := list.FindLastN(2)
+	checkError(err,t)
+	errMsg := "func FindLastN's result (%d = %d) is unexpected"
+	if elem.(int) != 3 {
+		t.Errorf(errMsg,elem,3)
+	}
+	elem,err = list.FindLastN(4)
+	checkError(err,t)
+	if elem.(int) != 1 {
+		t.Errorf(errMsg,elem,1)
+	}
+}
+

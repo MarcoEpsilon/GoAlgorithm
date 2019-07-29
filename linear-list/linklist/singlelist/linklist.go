@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	// "fmt"
+	//"math"
 )
 
 var (
@@ -505,4 +506,294 @@ func (list LinkList) DeleteRangeElem(start interface{},end interface{}) (err err
 		}
 	}
 	return err
+}
+
+func NodeToLinkList(n Node) (list LinkList) {
+	return &linkList {
+		head: n,
+	}
+}
+
+func (list LinkList) Copy() (LinkList) {
+	return &linkList {
+		head: list.head,
+	}
+}
+
+func FindCommonNode(left LinkList,right LinkList) (n Node,err error) {
+	if left.IsEmpty() || right.IsEmpty() {
+		return nil,OperationWithEmpty
+	}
+	leftLength := left.Length()
+	rightLength := right.Length()
+	handle := func(short Node,long Node,diff int64) (node Node,err error) {
+		for k := int64(0); k < diff; k++ {
+			long = long.next
+		}
+		for {
+			if short == long {
+				return short,nil
+			}
+			short = short.next
+			long = long.next
+			if short == nil {
+				return nil,OperationWithEmpty
+			}
+		}
+	}
+	if leftLength <= rightLength {
+		return handle(left.head,right.head,rightLength - leftLength)
+	} else {
+		return handle(right.head,left.head,leftLength - rightLength)
+	}
+}
+
+/*
+	this algorithm should be used to integer
+*/
+func (list LinkList) SplitToEvenAndOdd() (left LinkList,right LinkList) {
+	if list.IsEmpty() {
+		return nil,nil
+	}
+	left = New()
+	right = New()
+	appendNode := func (mainList LinkList,elem Node) {
+		if mainList.head == nil {
+			mainList.head = elem
+			return
+		}
+		var head Node = mainList.head
+		for ; head.next != nil; {
+			head = head.next
+		}
+		head.next = elem
+	}
+	var isEven = func (elem interface{}) (bool,error) {
+		if reflect.TypeOf(elem).Kind() != reflect.Int {
+			return false,TypeError
+		}
+		num := elem.(int)
+		if num % 2 == 0 {
+			return true,nil
+		} else {
+			return false,nil
+		}
+	}
+	for head := list.head; head != nil; {
+		status,err := isEven(head.data)
+		if err != nil {
+			return nil,nil
+		}
+		next := head.next
+		head.next = nil
+		if status == true {
+			appendNode(left,head)
+		} else {
+			appendNode(right,head)
+		}
+		head = next
+	}
+	list.head = nil
+	return left,right
+}
+
+
+func (list LinkList) SplitToNaturalAndReverse() (left LinkList,right LinkList) {
+	if list.IsEmpty() {
+		return nil,nil
+	}
+	left = New()
+	right = New()
+	appendNode := func(mainList LinkList,elem Node) {
+		if mainList.head == nil {
+			mainList.head = elem
+			return
+		}
+		head := mainList.head
+		for ; head.next != nil; {
+			head = head.next
+		}
+		head.next = elem
+	}
+	pushFront := func(mainList LinkList,elem Node) {
+		if mainList.head == nil {
+			mainList.head = elem
+			return
+		}
+		next := mainList.head
+		elem.next = next
+		mainList.head = elem
+	}
+	i := 0
+	for head := list.head; head != nil; {
+		next := head.next
+		head.next = nil
+		if i % 2 == 0 {
+			appendNode(left,head)
+		} else {
+			pushFront(right,head)
+		}
+		head = next
+		i++
+	}
+	list.head = nil
+	return left,right
+}
+
+func (list LinkList) DeleteRepeatWithSorted() (err error) {
+	if list.IsEmpty() {
+		return OperationWithEmpty
+	}
+	pre := list.head
+	current := pre.next
+	for ; current != nil; {
+		next := current.next
+		preData := pre.data
+		currentData := current.data
+		status,err := compare(preData,currentData)
+		if err != nil {
+			return err
+		}
+		if status == Eq {
+			pre.next = next
+			current = next
+		} else {
+			pre = current
+			current = next
+		}
+	}
+	return nil
+}
+
+func ReverseMergeSortedLinkList(left LinkList,right LinkList) (list LinkList,err error) {
+	if left.IsEmpty() && right.IsEmpty() {
+		return nil,OperationWithEmpty
+	}
+	list = New()
+	leftCurrent := left.head
+	rightCurrent := right.head
+	pushFront := func (mainList LinkList,elem Node) {
+		if mainList.head == nil {
+			mainList.head = elem
+			return
+		}
+		next := mainList.head
+		elem.next = next
+		mainList.head = elem
+	}
+	for ; leftCurrent != nil && rightCurrent != nil; {
+		leftData := leftCurrent.data
+		rightData := rightCurrent.data
+		status,err := compare(leftData,rightData)
+		if err != nil {
+			return nil,err
+		}
+		if status != GreaterThan {
+			leftNext := leftCurrent.next
+			leftCurrent.next = nil
+			pushFront(list,leftCurrent)
+			leftCurrent = leftNext
+		} else {
+			rightNext := rightCurrent.next
+			rightCurrent.next = nil
+			pushFront(list,rightCurrent)
+			rightCurrent = rightNext
+		}
+	}
+	for ; leftCurrent != nil; {
+		leftNext := leftCurrent.next
+		leftCurrent.next = nil
+		pushFront(list,leftCurrent)
+		leftCurrent = leftNext
+	}
+	for ; rightCurrent != nil; {
+		rightNext := rightCurrent.next
+		rightCurrent.next = nil
+		pushFront(list,rightCurrent)
+		rightCurrent = rightNext
+	}
+	left.head = nil
+	right.head = nil
+	return list,nil
+}
+
+
+func GetCommonWithSortedLinkList(left LinkList,right LinkList) (list LinkList,err error) {
+	if left.IsEmpty() || right.IsEmpty() {
+		return nil,OperationWithEmpty
+	}
+	leftCurrent := left.head
+	rightCurrent := right.head
+	list = New()
+	for ; leftCurrent != nil && rightCurrent != nil; {
+		leftData := leftCurrent.data
+		rightData := rightCurrent.data
+		status,err := compare(leftData,rightData)
+		if err != nil {
+			return nil,err
+		}
+		if status == Eq {
+			list.Append(leftData)
+			leftCurrent = leftCurrent.next
+			rightCurrent = rightCurrent
+		} else if status == LessThan {
+			leftCurrent = leftCurrent.next
+		} else {
+			rightCurrent = rightCurrent.next
+		}
+	}
+	if list.IsEmpty() {
+		return nil,OperationWithEmpty
+	}
+	return list,nil
+}
+
+
+func (list LinkList) IsSubSequenceOf(main LinkList) (bool,error) {
+	if list.IsEmpty() || main.IsEmpty() {
+		return false,OperationWithEmpty
+	}
+	mainCurrent := main.head
+	listCurrent := list.head
+	for ; mainCurrent != nil; {
+		mainData := mainCurrent.data
+		listData := listCurrent.data
+		status,err := compare(mainData,listData)
+		if err != nil {
+			return false,err
+		}
+		if status == Eq {
+			mainCurrent = mainCurrent.next
+			listCurrent = listCurrent.next
+			if listCurrent == nil {
+				return true,nil
+			}
+		} else {
+			mainCurrent = mainCurrent.next
+			listCurrent = list.head
+		}
+	}
+	return false,nil
+}
+
+
+func (list LinkList) FindLastN(n int) (elem interface{},err error) {
+	if n <= 0 {
+		return nil,OutOfRangeIndex
+	}
+	//slow pointer && quick pointer
+	slow := list.head
+	quick := list.head
+	// move quick pointer
+	for step := 0; step < n - 1; step++ {
+		if quick == nil {
+			return nil,OutOfRangeIndex
+		}
+		quick = quick.next
+	}
+	for ; quick.next != nil; {
+		slow = slow.next
+		quick = quick.next
+	}
+	return slow.data,nil
 }
