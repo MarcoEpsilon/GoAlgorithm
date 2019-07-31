@@ -455,3 +455,86 @@ func TestFindLastN(t *testing.T) {
 	}
 }
 
+func TestFindLastNWithRecusive(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4})
+	checkError(err,t)
+	elem,err := list.FindLastNWithRecusive(2)
+	checkError(err,t)
+	errMsg := "func FindLastNWithRecusive's result (%d = %d) is unexpected"
+	if elem.(int) != 3 {
+		t.Errorf(errMsg,elem,3)
+	}
+	elem,err = list.FindLastNWithRecusive(4)
+	checkError(err,t)
+	if elem.(int) != 1 {
+		t.Errorf(errMsg,elem,1)
+	}
+}
+
+func TestDeleteAll(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,3,4,2})
+	checkError(err,t)
+	err = list.DeleteAll(2)
+	checkError(err,t)
+	trans := getSlice(list)
+	result := []int{1,3,4,3,4}
+	errMsg := "func DeleteAll's result (%d = %d) is unexpected"
+	if len(trans) != len(result) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+}
+
+func TestNeighborReverse(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,5})
+	checkError(err,t)
+	err = list.NeighborReverse()
+	checkError(err,t)
+	result := []int{2,1,4,3,5}
+	trans := getSlice(list)
+	errMsg := "func NeighborReverse's result is (%d = %d) unexpected"
+	if len(trans) != len(result) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+}
+
+func TestReverseN(t *testing.T) {
+	list,err := NewWith([]int{1,2,3,4,5,6})
+	checkError(err,t)
+	err = list.ReverseN(2)
+	checkError(err,t)
+	errMsg := "func ReverseN's result (%d = %d) is unexpected"
+	result := []int{2,1,4,3,6,5}
+	trans := getSlice(list)
+	if len(result) != len(trans) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+	list,err = NewWith([]int{1,2,3,4,5,6,7,8,9,10,11})
+	checkError(err,t)
+	err = list.ReverseN(3)
+	checkError(err,t)
+	result = []int{3,2,1,6,5,4,9,8,7,10,11}
+	trans = getSlice(list)
+	if len(result) != len(trans) {
+		t.Errorf(errMsg,len(trans),len(result))
+	}
+	for i := 0; i < len(trans); i++ {
+		if trans[i].(int) != result[i] {
+			t.Errorf(errMsg,trans[i],result[i])
+		}
+	}
+}

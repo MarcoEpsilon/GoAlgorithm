@@ -304,7 +304,35 @@ func (list LinkList) DeleteAllWithRecusive(elem interface{}) (err error) {
 	return deleteAllWithRecusive(head,elem)
 }
 
-
+func (list LinkList) DeleteAll(elem interface{}) (err error) {
+	if list.IsEmpty() {
+		return OperationWithEmpty
+	}
+	var pre Node = nil
+	deleted := false
+	for current := list.head; current != nil; current = current.next {
+		currentData := current.data
+		status,err := compare(currentData,elem)
+		if err != nil {
+			return err
+		}
+		if status == Eq {
+			if pre == nil {
+				list.head = current.next
+			} else {
+				pre.next = current.next
+			}
+			deleted = true
+		} else {
+			pre = current
+		}
+	}
+	if deleted {
+		return nil
+	} else {
+		return OperationWithEmpty
+	}
+}
 
 func reverseDoWithRecusive(curr Node,fun func(elem interface{})) {
 	if curr == nil {
@@ -796,4 +824,173 @@ func (list LinkList) FindLastN(n int) (elem interface{},err error) {
 		quick = quick.next
 	}
 	return slow.data,nil
+}
+
+func findLastNWithRecusive(current Node,index int) (Node,int) {
+	if current != nil {
+		ret,n := findLastNWithRecusive(current.next,index)
+		if n == index - 1 {
+			return current,n + 1
+		} else {
+			return ret,n + 1
+		}
+	} else {
+		return nil,0
+	}
+}
+
+func (list LinkList) FindLastNWithRecusive(n int) (elem interface{},err error) {
+	if n <= 0 {
+		return nil,OperationWithEmpty
+	}
+	ret,_ := findLastNWithRecusive(list.head,n)
+	if ret != nil {
+		return ret.data,nil
+	} else {
+		return nil,nil
+	}
+}
+
+func (list LinkList) NeighborReverse() (err error) {
+	if list.IsEmpty() {
+		return OperationWithEmpty
+	}
+	swap := func(pre Node) (Node,Node) {
+		if pre.next == nil {
+			return nil,nil
+		}
+		curr := pre.next
+		next := curr.next
+		curr.next = pre
+		return curr,next
+	}
+	var pre Node = nil
+	current := list.head
+	for {
+		newHead,next := swap(current)
+		if next == nil {
+			if pre != nil {
+				pre.next = current
+			}
+			break
+		}
+		if pre == nil {
+			list.head = newHead
+			pre = newHead.next
+		} else {
+			pre.next = newHead
+			pre = newHead.next
+		}
+		current = next
+	}
+	return nil
+}
+// ReverseN(2) == NeighborReverse
+func (list LinkList) ReverseN(n int) (err error) {
+	if n <= 0 {
+		return OutOfRangeIndex
+	}
+	if list.IsEmpty() {
+		return OperationWithEmpty
+	}
+	var newListEnd Node = nil
+	var preNode Node = nil
+	currentNode := list.head
+	group := list.Length() / int64(n)
+	for k := int64(0); k < group; k++ {
+		newEndNode := currentNode
+		for i := 0; i < n; i++ {
+			nextCurrent := currentNode.next
+			currentNode.next = preNode
+			preNode = currentNode
+			currentNode = nextCurrent
+		}
+		if newListEnd == nil {
+			list.head = preNode
+			newListEnd = newEndNode
+		} else {
+			newListEnd.next = preNode
+			newListEnd = newEndNode
+		}
+		preNode = nil
+	}
+	//link the rest nodes
+	newListEnd.next = currentNode
+	return nil
+}
+
+func (list LinkList) IsCycle() (bool) {
+	fast := list.head
+	slow := list.head
+	for {
+		if fast == nil || fast.next == nil {
+			return false
+		}
+		fast = fast.next.next
+		slow = slow.next
+		if slow == fast {
+			return true
+		}
+	}
+}
+
+func (list LinkList) FindLoopNode() (Node,error) {
+	fast := list.head
+	slow := list.head
+	for {
+		if fast == nil || fast.next == nil {
+			return nil,OperationWithEmpty
+		}
+		fast = fast.next.next
+		slow = slow.next
+		if fast == slow {
+			for slow = list.head; slow != fast; {
+				slow = slow.next
+				fast = fast.next
+			}
+			return slow,nil
+		}
+	}
+}
+
+
+func (list LinkList) LoopStartIndex() (int,error) {
+	fast := list.head
+	slow := list.head
+	for {
+		if fast == nil || fast.next == nil {
+			return 0,OperationWithEmpty
+		}
+		fast = fast.next.next
+		slow = slow.next
+		if fast == slow {
+			i := 0
+			for slow = list.head; slow != fast; {
+				slow = slow.next
+				fast = fast.next
+				i++
+			}
+			return i,nil
+		}
+	}
+}
+
+func (list LinkList) LoopLength() (int,error) {
+	fast := list.head
+	slow := list.head
+	for {
+		if fast == nil || fast.next == nil {
+			return 0,OperationWithEmpty
+		}
+		fast = fast.next.next
+		slow = slow.next
+		if fast == slow {
+			i := 1
+			slow = fast.next
+			for ; slow != fast; i++ {
+				slow = slow.next
+			}
+			return i,nil
+		}
+	}
 }
