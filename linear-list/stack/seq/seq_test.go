@@ -1,0 +1,5 @@
+package seq
+/*
+import (
+	"testing"
+)*/
