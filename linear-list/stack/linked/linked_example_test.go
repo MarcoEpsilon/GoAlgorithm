@@ -2,7 +2,6 @@ package linked
 
 import "fmt"
 
-
 func checkExampleError(err error) {
 	if err != nil {
 		panic(err)
@@ -10,10 +9,10 @@ func checkExampleError(err error) {
 }
 
 func ExampleNewWith() {
-	stack,err := NewWith([]int{1,2,3,4,5})
+	stack, err := NewWith([]int{1, 2, 3, 4, 5})
 	checkExampleError(err)
-	for ; !stack.IsEmpty(); {
-		elem,err := stack.Pop()
+	for !stack.IsEmpty() {
+		elem, err := stack.Pop()
 		checkExampleError(err)
 		fmt.Println(elem)
 	}
@@ -39,4 +38,20 @@ func ExampleOperation() {
 	// Output:
 	// 2
 	// 2
+}
+
+func ExampleReverse() {
+	stack, err := NewWith([]int{1, 2, 3, 4, 5})
+	checkExampleError(err)
+	stack.Reverse()
+	for !stack.IsEmpty() {
+		top, _ := stack.Pop()
+		fmt.Println(top)
+	}
+	// Output:
+	// 1
+	// 2
+	// 3
+	// 4
+	// 5
 }

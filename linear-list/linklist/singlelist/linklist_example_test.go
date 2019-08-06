@@ -1,12 +1,13 @@
 package singlelist
 
 import "fmt"
+
 func ExampleReverseDoWithRecusive() {
-	list,err := NewWith([]int{1,2,3,4,5})
+	list, err := NewWith([]int{1, 2, 3, 4, 5})
 	if err != nil {
 		panic(err)
 	}
-	list.ReverseDoWithRecusive(func (elem interface{}) {fmt.Println(elem)})
+	list.ReverseDoWithRecusive(func(elem interface{}) { fmt.Println(elem) })
 	// Output:
 	// 5
 	// 4
@@ -15,7 +16,7 @@ func ExampleReverseDoWithRecusive() {
 	// 1
 }
 
-func getTailNode(n Node) (Node) {
+func getTailNode(n Node) Node {
 	if n == nil {
 		return nil
 	}
@@ -24,7 +25,7 @@ func getTailNode(n Node) (Node) {
 	return n
 }
 func ExampleIsCycle() {
-	list,err := NewWith([]int{1,2,3,4})
+	list, err := NewWith([]int{1, 2, 3, 4})
 	if err != nil {
 		panic(err)
 	}
@@ -37,11 +38,11 @@ func ExampleIsCycle() {
 }
 
 func ExampleFindLoopNode() {
-	list,err := NewWith([]int{1,2,3,4,5,6})
+	list, err := NewWith([]int{1, 2, 3, 4, 5, 6})
 	if err != nil {
 		panic(err)
 	}
-	subList,err := NewWith([]int{7,8,9})
+	subList, err := NewWith([]int{7, 8, 9})
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +50,7 @@ func ExampleFindLoopNode() {
 	subTail := getTailNode(subList.head)
 	listTail.next = subList.head
 	subTail.next = list.head.next.next
-	elem,err := list.FindLoopNode()
+	elem, err := list.FindLoopNode()
 	if err != nil {
 		panic(err)
 	}
@@ -59,11 +60,11 @@ func ExampleFindLoopNode() {
 }
 
 func ExampleLoopNodeIndex() {
-	list,err := NewWith([]int{1,2,3,4,5,6})
+	list, err := NewWith([]int{1, 2, 3, 4, 5, 6})
 	if err != nil {
 		panic(err)
 	}
-	subList,err := NewWith([]int{7,8,9})
+	subList, err := NewWith([]int{7, 8, 9})
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +72,7 @@ func ExampleLoopNodeIndex() {
 	subTail := getTailNode(subList.head)
 	listTail.next = subList.head
 	subTail.next = list.head.next.next
-	index,err := list.LoopStartIndex()
+	index, err := list.LoopStartIndex()
 	if err != nil {
 		panic(err)
 	}
@@ -80,13 +81,12 @@ func ExampleLoopNodeIndex() {
 	// 2
 }
 
-
 func ExampleLoopLength() {
-	list,err := NewWith([]int{1,2,3,4,5,6})
+	list, err := NewWith([]int{1, 2, 3, 4, 5, 6})
 	if err != nil {
 		panic(err)
 	}
-	subList,err := NewWith([]int{7,8,9})
+	subList, err := NewWith([]int{7, 8, 9})
 	if err != nil {
 		panic(err)
 	}
@@ -94,7 +94,7 @@ func ExampleLoopLength() {
 	subTail := getTailNode(subList.head)
 	listTail.next = subList.head
 	subTail.next = list.head.next.next
-	length,err := list.LoopLength()
+	length, err := list.LoopLength()
 	if err != nil {
 		panic(err)
 	}
