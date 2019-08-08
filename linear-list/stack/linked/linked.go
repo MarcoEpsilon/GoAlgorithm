@@ -10,7 +10,54 @@ var (
 	StackIsEmpty   = errors.New("StackIsEmpty")
 	UnExpectedType = errors.New("UnExpectedType")
 	TypeError      = errors.New("TypeError")
+	NotSupportCompare = errors.New("NotSupportCompare")
 )
+
+const (
+	LessThan      = -1
+	Eq            = 0
+	GreaterThan   = 1
+	UnCompareable = 2
+)
+
+func compare(left interface{}, right interface{}) (status int, err error) {
+	if reflect.TypeOf(left).Kind() != reflect.TypeOf(right).Kind() {
+		return UnCompareable, UnExpectedType
+	}
+	//ps:switch 的局限性导致大量重复代码
+	switch right := right.(type) {
+	case int:
+		left := left.(int)
+		if left < right {
+			return LessThan, err
+		} else if left > right {
+			return GreaterThan, err
+		} else {
+			return Eq, err
+		}
+	case string:
+		left := left.(string)
+		if left < right {
+			return LessThan, err
+		} else if left > right {
+			return GreaterThan, err
+		} else {
+			return Eq, err
+		}
+	case float32:
+		left := left.(float32)
+		if left < right {
+			return LessThan, err
+		} else if left > right {
+			return GreaterThan, err
+		} else {
+			return Eq, err
+		}
+	//ignore int32,int64,uint32,float64 throw to default
+	default:
+		return UnCompareable, NotSupportCompare
+	}
+}
 
 type Node = *node
 type node struct {
@@ -49,9 +96,9 @@ func (stack Stack) Pop() (elem interface{}, err error) {
 	return elem, nil
 }
 
-func (stack Stack) checkeType(elem interface{}) (err error) {
+func (stack Stack) checkType(elem interface{}) (err error) {
 	if stack.IsEmpty() {
-		return StackIsEmpty
+		return nil
 	}
 	leftType := reflect.TypeOf(stack.top.data)
 	rightType := reflect.TypeOf(elem)
@@ -62,7 +109,7 @@ func (stack Stack) checkeType(elem interface{}) (err error) {
 }
 
 func (stack Stack) Push(data interface{}) (err error) {
-	err = stack.checkeType(data)
+	err = stack.checkType(data)
 	if err != nil {
 		return err
 	}
@@ -79,7 +126,10 @@ func NewWith(elems interface{}) (Stack, error) {
 	switch reflect.TypeOf(elems).Kind() {
 	case reflect.Slice, reflect.Array:
 		for i := 0; i < value.Len(); i++ {
-			stack.Push(value.Index(i).Interface())
+			err := stack.Push(value.Index(i).Interface())
+			if err != nil {
+				return nil, err
+			}
 		}
 	default:
 		return nil, UnExpectedType
@@ -121,4 +171,52 @@ func (stack Stack) reverse() {
 
 func (stack Stack) Reverse() {
 	stack.reverse()
+}
+
+func checkSliceOrArray(push interface{},pop interface{}) (err error) {
+	pushKind := reflect.TypeOf(push).Kind()
+	popKind := reflect.TypeOf(pop).Kind()
+	if pushKind == popKind && (pushKind == reflect.Slice || pushKind == reflect.Array) {
+		return nil
+	}
+	return UnExpectedType
+}
+
+func IsResult(push interface{},pop interface{}) (bool,error) {
+	help := New()
+	j := 0
+	popValue := reflect.ValueOf(pop)
+	pushValue := reflect.ValueOf(push)
+	for i := 0; i < popValue.Len(); i++ {
+		if !help.IsEmpty() {
+			top, _ := help.Top()
+			status, err := compare(top,popValue.Index(i).Interface())
+			if err != nil {
+				return false, err
+			}
+			if status == Eq {
+				help.Pop()
+				continue
+			}
+		}
+		for ; j < pushValue.Len(); j++ {
+			leftValue := popValue.Index(i).Interface()
+			rightValue := pushValue.Index(j).Interface()
+			status, err := compare(leftValue,rightValue)
+			if err != nil {
+				return false, err
+			}
+			if status == Eq {
+				j++
+				break
+			} else {
+				_ = help.Push(rightValue)
+			}
+		}
+	}
+	if !help.IsEmpty() {
+		return false, nil
+	} else {
+		return true, nil
+	}
 }

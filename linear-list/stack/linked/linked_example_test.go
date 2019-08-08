@@ -11,7 +11,7 @@ func checkExampleError(err error) {
 func ExampleNewWith() {
 	stack, err := NewWith([]int{1, 2, 3, 4, 5})
 	checkExampleError(err)
-	for !stack.IsEmpty() {
+	for ; !stack.IsEmpty(); {
 		elem, err := stack.Pop()
 		checkExampleError(err)
 		fmt.Println(elem)
@@ -44,7 +44,7 @@ func ExampleReverse() {
 	stack, err := NewWith([]int{1, 2, 3, 4, 5})
 	checkExampleError(err)
 	stack.Reverse()
-	for !stack.IsEmpty() {
+	for ; !stack.IsEmpty(); {
 		top, _ := stack.Pop()
 		fmt.Println(top)
 	}
@@ -54,4 +54,12 @@ func ExampleReverse() {
 	// 3
 	// 4
 	// 5
+}
+
+func ExampleIsResult() {
+	is, err := IsResult([]int{1,2,3,4,5},[]int{3,2,5,4,1})
+	checkExampleError(err)
+	fmt.Println(is)
+	// Output:
+	// true
 }
