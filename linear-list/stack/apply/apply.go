@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strconv"
 	"fmt"
+	"strings"
 )
 // notice: suffix exp don't make sure the expression is legal
 const (
@@ -196,5 +197,43 @@ func (se SuffixExp) EvalSuffixExp() (value float64, err error) {
 	} else {
 		v, _ := numbers.Pop()
 		return v.(float64), nil
+	}
+}
+
+// judge whether is matched ()[]{}
+func IsMatchedParentheses(checked string) bool {
+	st := stack.New();
+	matched := func(s string, e string) (bool) {
+		switch s {
+		case "(":
+			return e == ")"
+		case "[":
+			return e == "]"
+		case "{":
+			return e == "}"
+		default:
+			return false
+		}
+	}
+	for _, r := range checked {
+		s := string(r)
+		if strings.ContainsAny(s, "([{") {
+			st.Push(r)
+		} else if strings.ContainsAny(s, ")]}") {
+			if !st.IsEmpty() {
+				ti, _ := st.Pop()
+				top := string(ti.(rune))
+				if !matched(top, s) {
+					return false
+				}
+			} else {
+				return false
+			}
+		}
+	}
+	if st.IsEmpty() {
+		return true
+	} else {
+		return false
 	}
 }

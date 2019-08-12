@@ -26,3 +26,15 @@ func ExampleEvalSuffixExp() {
 	// Output:
 	// 10.5
 }
+
+func ExampleIsMatchedParentheses() {
+	check := "{(a + b) * (c + d)} * [e,f] + ([{1,2}]) * {{1,2}} + [[(1,2)]]"
+	matched := IsMatchedParentheses(check)
+	fmt.Println(matched)
+	check = "{({{}}](]"
+	matched = IsMatchedParentheses(check)
+	fmt.Println(matched)
+	// Output:
+	// true
+	// false	
+}
