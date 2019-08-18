@@ -220,3 +220,46 @@ func IsResult(push interface{},pop interface{}) (bool,error) {
 		return true, nil
 	}
 }
+
+func (stack Stack) bottomBubble() (err error) {
+	if stack.IsEmpty() {
+		return nil
+	}
+	top, _ := stack.Pop()
+	if !stack.IsEmpty() {
+		waitErr := stack.bottomBubble()
+		bottom, _ := stack.Pop()
+		status, err := compare(bottom, top)
+		if err != nil {
+			return err
+		}
+		if status == LessThan {
+			stack.Push(top)
+			stack.Push(bottom)
+		} else {
+			stack.Push(bottom)
+			stack.Push(top)
+		}
+		return waitErr
+	} else {
+		stack.Push(top)
+	}
+	return nil
+}
+
+func (stack Stack) SortWithBubble() (err error) {
+	if stack.IsEmpty() {
+		return nil
+	}
+	err = stack.bottomBubble()
+	if err != nil {
+		return err
+	}
+	top, _ := stack.Pop()
+	err = stack.SortWithBubble()
+	if err != nil {
+		return err
+	}
+	stack.Push(top)
+	return nil
+}

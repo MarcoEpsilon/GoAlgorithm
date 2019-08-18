@@ -63,3 +63,21 @@ func ExampleIsResult() {
 	// Output:
 	// true
 }
+
+func ExampleSortWithBubble() {
+	stack, err := NewWith([]int{5,0,1,4,3,2})
+	checkExampleError(err)
+	err = stack.SortWithBubble()
+	checkExampleError(err)
+	for ; !stack.IsEmpty(); {
+		top, _ := stack.Pop()
+		fmt.Println(top)
+	}
+	// Ouput:
+	// 0
+	// 1
+	// 2
+	// 3
+	// 4
+	// 5
+}

@@ -250,7 +250,7 @@ func (stack Stack) SortWithBubble() (err error) {
 
 func (stack Stack) bottomBubble() (err error) {
 	if stack.IsEmpty() {
-		return
+		return nil
 	}
 	top, _ := stack.Pop()
 	if !stack.IsEmpty() {
