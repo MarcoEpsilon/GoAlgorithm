@@ -3,7 +3,7 @@ package btree
 import (
 	"errors"
 	"reflect"
-	//  "fmt"
+	//"fmt"
 )
 
 var (
@@ -317,6 +317,7 @@ func (bt BinaryTree) PostOrderRecursiveVisit() (seq []interface{}) {
 	bt.root.postOrderRecursiveVisit(&seq)
 	return seq
 }
+// 前序遍历
 // should use stack, we use slice to achieve
 func (bt BinaryTree) PreOrderVisit() (seq []interface{}) {
 	seq = make([]interface{}, 0)
@@ -339,6 +340,7 @@ func (bt BinaryTree) PreOrderVisit() (seq []interface{}) {
 	return seq
 }
 
+// 中序遍历
 func (bt BinaryTree) InOrderVisit() (seq []interface{}) {
 	seq = make([]interface{}, 0)
 	childs := make([]BinaryTreeNode, 0)
@@ -356,7 +358,8 @@ func (bt BinaryTree) InOrderVisit() (seq []interface{}) {
 	}
 	return seq
 }
-// 左右根
+
+// 后序遍历
 func (bt BinaryTree) PostOrderVisit() (seq []interface{}) {
 	if bt.root == nil {
 		return
@@ -386,6 +389,7 @@ func (bt BinaryTree) PostOrderVisit() (seq []interface{}) {
 	return seq
 }
 
+//层序遍历
 func (bt BinaryTree) LevelOrderVisit() (seq []interface{}) {
 	seq = make([]interface{}, 0)
 	childs := make([]BinaryTreeNode, 0)
@@ -401,4 +405,240 @@ func (bt BinaryTree) LevelOrderVisit() (seq []interface{}) {
 		childs = childs[1:]
 	}
 	return seq
+}
+
+// 层序遍历 从下至上 右至左
+func (bt BinaryTree) LevelOrderWithBTRLVisit() (seq []interface{}) {
+	//把seq当做栈处理
+	seq = make([]interface{}, 0)
+	if bt.root == nil {
+		return seq
+	}
+	childs := make([]BinaryTreeNode, 0)
+	childs = append(childs, bt.root)
+	for ; len(childs) != 0; {
+		child := childs[0]
+		childs = childs[1:len(childs)]
+		//从右至左
+		if child.left != nil {
+			childs = append(childs, child.left)
+		}
+		if child.right != nil {
+			childs = append(childs, child.right)
+		}
+		//从下至上
+		seq = append(append(make([]interface{}, 0), child.data), seq...)
+	}
+	return seq
+}
+
+// 求树高
+func (bt BinaryTree) Height() int {
+	if bt.root == nil {
+		return 0
+	}
+	//经过每一层高度加1
+	height := 0
+	childs := make([]BinaryTreeNode, 0)
+	childs = append(childs, bt.root)
+	lastCount := 1
+	childCount := 0
+	for ; len(childs) != 0; {
+		child := childs[0]
+		childs = childs[1:]
+		if child.left != nil {
+			childs = append(childs, child.left)
+			childCount++
+		}
+		if child.right != nil {
+			childs = append(childs, child.right)
+			childCount++
+		}
+		lastCount--
+		if lastCount == 0 {
+			height++
+			lastCount = childCount
+			childCount = 0
+		}
+	}
+	return height
+}
+// 判断二叉树是否是完全二叉树
+// 利用层序遍历
+func (bt BinaryTree) IsComplete() (bool) {
+	if bt.root == nil {
+		return true
+	}
+	childs := make([]BinaryTreeNode, 0)
+	childs = append(childs, bt.root)
+	for ; len(childs) != 0; {
+		child := childs[0]
+		childs = childs[1:]
+		if child != nil {
+			childs = append(childs, child.left)
+			childs = append(childs, child.right)
+		} else {
+			for ; len(childs) != 0; {
+				rest := childs[0]
+				childs = childs[1:]
+				if rest != nil {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
+func (btn BinaryTreeNode) twoDegreeNodeCount() int {
+	if btn == nil {
+		return 0
+	}
+	if btn.left != nil && btn.right != nil {
+		return btn.left.twoDegreeNodeCount() + btn.right.twoDegreeNodeCount() + 1
+	} else {
+		return btn.left.twoDegreeNodeCount() + btn.right.twoDegreeNodeCount()
+	}
+}
+
+// 统计度为2的节点树
+func (bt BinaryTree) TwoDegreeNodeCount() int {
+	return bt.root.twoDegreeNodeCount()
+}
+
+func (btn BinaryTreeNode) swapLeftAndRight() {
+	if btn == nil {
+		return
+	}
+	btn.left.swapLeftAndRight()
+	btn.right.swapLeftAndRight()
+	btn.left, btn.right = btn.right, btn.left
+}
+
+// 交换二叉树左右子树
+func (bt BinaryTree) SwapLeftAndRight() {
+	bt.root.swapLeftAndRight()
+}
+
+func (btn BinaryTreeNode) preOrderNWithRecursive(n *int) (BinaryTreeNode) {
+	if btn == nil {
+		return nil
+	}
+	*n = *n - 1
+	if *n <= 0 {
+		return btn
+	}
+	left := btn.left.preOrderNWithRecursive(n)
+	if left != nil {
+		return left
+	}
+	right := btn.right.preOrderNWithRecursive(n)
+	return right
+} 
+// 求先序遍历第N个节点值
+func (bt BinaryTree) PreOrderN(n int) interface{} {
+	if n <= 0 {
+		return nil
+	}
+	return bt.root.preOrderNWithRecursive(&n)
+}
+
+// 某节点祖先序列
+func (bt BinaryTree) AncestorsOf(x interface{}) (seq []interface{}) {
+	seq = make([]interface{}, 0)
+	if bt.root == nil {
+		return seq
+	}
+	childs := append(make([]BinaryTreeNode, 0), bt.root)
+	var pre BinaryTreeNode = nil
+	for ; len(childs) != 0; {
+		current := childs[len(childs) - 1]
+		if pre == nil || pre.left == current || pre.right == current {
+			if current.left != nil {
+				childs = append(childs, current.left)
+			} else if current.right != nil {
+				childs = append(childs, current.right)
+			}
+		} else if current.left == pre {
+			if current.right != nil {
+				childs = append(childs, current.right)
+			}
+		} else {
+			childs = childs[:len(childs) - 1]
+			status, err := compare(x, current.data)
+			if err != nil {
+				panic(err)
+			}
+			if status == Eq {
+				break
+			}
+		}
+		pre = current
+	}
+	for _, node := range childs {
+		seq = append(seq, node.data)
+	}
+	return seq
+}
+
+// 求两节点最近公共祖先
+func (bt BinaryTree) NearCommonAncestorOf(x interface{}, y interface{}) interface{} {
+	if bt.root == nil {
+		return nil
+	}
+	childs := append(make([]BinaryTreeNode, 0), bt.root)
+	var directXParent BinaryTreeNode = nil
+	var directYParent BinaryTreeNode = nil
+	var pre BinaryTreeNode = nil
+	for ; len(childs) != 0; {
+		current := childs[len(childs) - 1]
+		if pre == nil || pre.left == current || pre.right == current {
+			if current.left != nil {
+				childs = append(childs, current.left)
+			} else if current.right != nil {
+				childs = append(childs, current.right)
+			}
+		} else if current.left == pre {
+			if current.right != nil {
+				childs = append(childs, current.right)
+			}
+		} else {
+			childs = childs[:len(childs) - 1]
+			if directXParent == nil {
+				status, err := compare(x, current.data)
+				if err != nil {
+					panic(err)
+				}
+				if status == Eq {
+					directXParent = childs[len(childs) - 1]
+				}
+			}
+			if directYParent == nil {
+				status, err := compare(y, current.data)
+				if err != nil {
+					panic(err)
+				}
+				if status == Eq {
+					directYParent = childs[len(childs) - 1]
+				}
+			}
+			if directXParent != nil && directYParent != nil {
+				break
+			}
+		}
+		pre = current
+	}
+	if directXParent != nil && directYParent != nil {
+		if directXParent == directYParent {
+			return directXParent.data
+		}
+		for i, v := range childs {
+			if v == directXParent || v == directYParent {
+				if i >= 1 {
+					return childs[i - 1].data
+				}
+			}
+		}
+	}
+	return nil
 }

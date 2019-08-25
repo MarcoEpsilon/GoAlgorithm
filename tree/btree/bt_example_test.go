@@ -188,3 +188,151 @@ func ExampleLevelAndInVisit() {
 	// 6
 	// 3
 }
+
+func ExampleLevelOrderBTRLVisit() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	levelBTRLResult := bt.LevelOrderWithBTRLVisit()
+	inResult := bt.InOrderVisit()
+	for _, v := range levelBTRLResult {
+		fmt.Println(v)
+	}
+	for _, v := range inResult {
+		fmt.Println(v)
+	}
+	// Output:
+	// 7
+	// 6
+	// 5
+	// 4
+	// 3
+	// 2
+	// 1
+	// 7
+	// 4
+	// 2
+	// 5
+	// 1
+	// 6
+	// 3
+}
+
+func ExampleHeight() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	height := bt.Height()
+	fmt.Println(height)
+	// Output:
+	// 4
+}
+
+func ExampleIsComplete() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	iscomplete := bt.IsComplete()
+	fmt.Println(iscomplete)
+	// Output:
+	// false
+}
+
+func ExampleTwoDegreeNodeCount() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	fmt.Println(bt.TwoDegreeNodeCount())
+	// Output:
+	// 2
+}
+
+func ExampleSwapLeftAndRight() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	bt.SwapLeftAndRight()
+	//levelResult := []int{1,3,2,6,5,4,7}
+	//inResult := []int{3,6,1,5,2,4,7}
+	levelResult := bt.LevelOrderVisit()
+	inResult := bt.InOrderVisit()
+	for _, v := range levelResult {
+		fmt.Println(v)
+	}
+	for _, v := range inResult {
+		fmt.Println(v)
+	}
+	// Output:
+	// 1
+	// 3
+	// 2
+	// 6
+	// 5
+	// 4
+	// 7
+	// 3
+	// 6
+	// 1
+	// 5
+	// 2
+	// 4
+	// 7
+}
+
+func ExamplePreOrderN() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	preResult := []int{1,2,4,7,5,3,6}
+	for i, v := range preResult {
+		curr := bt.PreOrderN(i + 1)
+		fmt.Println(curr.(int) == v)
+	}
+	// true
+	// true
+	// true
+	// true
+	// true
+	// true
+	// true
+}
+
+func ExampleAncestorsOf() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	ancestors := bt.AncestorsOf(4)
+	for _, v := range ancestors {
+		fmt.Println(v)
+	}
+	ancestors = bt.AncestorsOf(5)
+	for _, v := range ancestors {
+		fmt.Println(v)
+	}
+	// Output:
+	// 1
+	// 2
+	// 1
+	// 2
+}
+
+func ExampleNearCommonAncestorOf() {
+	level := []int{1,2,3,4,5,6,7}
+	in := []int{7,4,2,5,1,6,3}
+	bt, err := NewWithLevelAndIn(level, in)
+	checkError(err)
+	ancestor := bt.NearCommonAncestorOf(4, 5)
+	fmt.Println(ancestor)
+	ancestor = bt.NearCommonAncestorOf(5, 6)
+	fmt.Println(ancestor)
+	// Output:
+	// 2
+	// 1
+}
