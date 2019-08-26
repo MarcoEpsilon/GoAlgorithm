@@ -35,6 +35,15 @@ func compare(left interface{}, right interface{}) (int, error) {
 		} else {
 			return Eq, nil
 		}
+	case string:
+		right := right.(string)
+		if left < right {
+			return LessThan, nil
+		} else if left > right {
+			return MoreThan, nil
+		} else {
+			return Eq, nil
+		}
 	default:
 		return UnCompareable, UnExpectedType
 	}
@@ -641,4 +650,57 @@ func (bt BinaryTree) NearCommonAncestorOf(x interface{}, y interface{}) interfac
 		}
 	}
 	return nil
+}
+
+// 求二叉树最大宽度
+// 利用层序遍历求得最大宽度
+func (bt BinaryTree) Width() (int) {
+	if bt.root == nil {
+		return 0
+	}
+	childs := append(make([]BinaryTreeNode, 0), bt.root)
+	maxLevelCount := 1
+	parentCount := 1
+	childCount := 0
+	for ; len(childs) != 0; {
+		child := childs[0]
+		childs = childs[1:]
+		parentCount--
+		if child.left != nil {
+			childs = append(childs, child.left)
+			childCount++
+		}
+		if child.right != nil {
+			childs = append(childs, child.right)
+			childCount++
+		}
+		if parentCount == 0 {
+			parentCount = childCount
+			if childCount > maxLevelCount {
+				maxLevelCount = childCount
+			}
+			childCount = 0
+		}
+	}
+	return maxLevelCount
+}
+
+func isSimilar(left BinaryTreeNode, right BinaryTreeNode) bool {
+	if left == nil && right == nil {
+		return true
+	} else if left.left == nil && left.right == nil {
+		if right.left == nil && right.right == nil {
+			return true
+		}
+		return false
+	} else {
+		return isSimilar(left.left, right.left) && isSimilar(left.right, right.right)
+	}
+}
+func IsSimilar(left BinaryTree, right BinaryTree) bool {
+	if left != nil && right != nil {
+		return isSimilar(left.root, right.root)	
+	} else {
+		return left == right
+	}
 }
