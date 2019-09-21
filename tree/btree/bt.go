@@ -704,3 +704,9 @@ func IsSimilar(left BinaryTree, right BinaryTree) bool {
 		return left == right
 	}
 }
+/*
+// 通过有序数组or切片构造二叉树
+func NewWithOrder(elements interface{}) (BinaryTree, error) {
+	
+}
+*/

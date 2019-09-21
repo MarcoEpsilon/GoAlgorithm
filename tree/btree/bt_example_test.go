@@ -2,7 +2,7 @@ package btree
 
 import (
 	"fmt"
-	//"bytes"
+	"bytes"
 )
 
 func checkError(err error) {
@@ -409,55 +409,45 @@ func ExampleWPL() {
 	// Output:
 	// 61
 }
-/*
-// 已知表达式内容为字符串
-// 中序遍历
-func (bt BinaryTree) inOrderConvertToExp() string {
-	if bt.root == nil {
-		return ""
-	}
-	buf := new(bytes.Buffer)
-	leftChilds := append(make([]BinaryTreeNode, 0), bt.root)
-	isLeft := true
-	for ; len(leftChilds) != 0; {
-		current := leftChilds[len(leftChilds) - 1]
-		if isLeft {
-			for ; current.left != nil && current.left.left != nil; {
-				leftChilds = append(leftChilds, current.left)
-			}
-		}
-		leftChild := leftChilds[len(leftChilds) - 1]
-		leftChilds = leftChilds[:len(leftChilds) - 1]
-		if isLeft && leftChild.left == nil {
-			buf.WriteString("( ")
-		} else {
-			buf.WriteString(") ")
-		}
-		// 访问左结点
-		if isLeft && leftChild.left != nil {
-			buf.WriteString(leftChild.left.data.(string) + " ")
-		}
-		isLeft = false
-		// 访问根结点
-		buf.WriteString(leftChild.data.(string) + " ")
-		// 添加右子树
-		if leftChild.right != nil {
-			isLeft = true
-			leftChilds = append(leftChilds, leftChild.right)
-		}
-	}
-	return buf.String()
-}
+
 // 将已知中序表达式二叉树转换为 中序表达式(已括号表示优先级)
 func ExampleInConvert() {
-	pre := []string{"*","+","a","b","*","c","-","d"}
-	in := []string{"a","+","b","*","c","*","-","d"}
+	pre := []string{"*","+","a","b","/","c","-","d"}
+	in := []string{"a","+","b","*","c","/","-","d"}
 	bt, err := NewWithPreAndIn(pre, in)
 	checkError(err)
-	result := bt.inOrderConvertToExp()
+	result := bt.inOrderRecursiveConvertToExp()
 	fmt.Println(result)
 	// Output:
 	// ( a + b ) * ( c * ( - d ) )
 }
-*/
+
+
+func (btn BinaryTreeNode) inOrderRecursiveConvertToExp(buf *bytes.Buffer, deep int) {
+	if btn == nil {
+		return
+	}
+	if btn.left == nil && btn.right == nil {
+		fmt.Println(btn.data)
+		buf.WriteString(btn.data.(string) + " ")
+	} else {
+		if deep > 1 {
+			buf.WriteString("( ")
+			btn.left.inOrderRecursiveConvertToExp(buf, deep + 1)
+			buf.WriteString(btn.data.(string) + " ")
+			btn.right.inOrderRecursiveConvertToExp(buf, deep + 1)
+			buf.WriteString(") ")
+		} else {
+			btn.left.inOrderRecursiveConvertToExp(buf, deep + 1)
+			buf.WriteString(btn.data.(string) + " ")
+			btn.right.inOrderRecursiveConvertToExp(buf, deep + 1)
+		}
+		
+	}
+}
+func (bt BinaryTree) inOrderRecursiveConvertToExp() (string) {
+	buf := new(bytes.Buffer)
+	bt.root.inOrderRecursiveConvertToExp(buf, 1)
+	return buf.String()
+}
 
